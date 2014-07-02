@@ -1,5 +1,5 @@
 /**
- * w11k-flash - v0.1.2 - 2014-07-02
+ * w11k-flash - v0.1.3 - 2014-07-02
  * https://github.com/w11k/w11k-flash
  *
  * Copyright (c) 2014 WeigleWilczek GmbH
@@ -8,11 +8,11 @@
 
 angular.module("w11k.flash", []);
 
-angular.module("w11k.flash").factory("swfobject", function($window) {
+angular.module("w11k.flash").factory("swfobject", [ "$window", function($window) {
     return $window.swfobject;
-});
+} ]);
 
-angular.module("w11k.flash").factory("w11kFlashRegistry", function() {
+angular.module("w11k.flash").factory("w11kFlashRegistry", [ function() {
     var flashIdPrefix = "w11k-flash-id-";
     var flashIdCounter = 0;
     var flashMap = {};
@@ -30,9 +30,9 @@ angular.module("w11k.flash").factory("w11kFlashRegistry", function() {
             return flashMap[flashId];
         }
     };
-});
+} ]);
 
-angular.module("w11k.flash").run(function($window, w11kFlashRegistry) {
+angular.module("w11k.flash").run([ "$window", "w11kFlashRegistry", function($window, w11kFlashRegistry) {
     if (angular.isFunction($window.w11kFlashIsReady) === false) {
         $window.w11kFlashIsReady = function(flashId) {
             var flash = w11kFlashRegistry.getFlash(flashId);
@@ -43,9 +43,9 @@ angular.module("w11k.flash").run(function($window, w11kFlashRegistry) {
             }
         };
     }
-});
+} ]);
 
-angular.module("w11k.flash").run(function($window, w11kFlashRegistry) {
+angular.module("w11k.flash").run([ "$window", "w11kFlashRegistry", function($window, w11kFlashRegistry) {
     if (angular.isFunction($window.w11kFlashCall) === false) {
         $window.w11kFlashCall = function(flashId, expression, locals) {
             var flash = w11kFlashRegistry.getFlash(flashId);
@@ -59,7 +59,7 @@ angular.module("w11k.flash").run(function($window, w11kFlashRegistry) {
             }
         };
     }
-});
+} ]);
 
 angular.module("w11k.flash").constant("w11kFlashConfig", {
     templateUrl: "w11k-flash.tpl.html",
@@ -70,7 +70,7 @@ angular.module("w11k.flash").constant("w11kFlashConfig", {
     }
 });
 
-angular.module("w11k.flash").directive("w11kFlash", function(swfobject, $window, $q, w11kFlashConfig, $timeout, w11kFlashRegistry) {
+angular.module("w11k.flash").directive("w11kFlash", [ "swfobject", "$window", "$q", "w11kFlashConfig", "$timeout", "w11kFlashRegistry", function(swfobject, $window, $q, w11kFlashConfig, $timeout, w11kFlashRegistry) {
     var deepMerge = function(destination, source) {
         for (var property in source) {
             if (source[property] && source[property].constructor && source[property].constructor === Object) {
@@ -140,4 +140,4 @@ angular.module("w11k.flash").directive("w11kFlash", function(swfobject, $window,
             };
         }
     };
-});
+} ]);

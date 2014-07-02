@@ -1,5 +1,5 @@
 /**
- * w11k-flash - v0.1.1 - 2014-07-02
+ * w11k-flash - v0.1.2 - 2014-07-02
  * https://github.com/w11k/w11k-flash
  *
  * Copyright (c) 2014 WeigleWilczek GmbH
@@ -64,24 +64,24 @@ angular.module("w11k.flash").run(function($window, w11kFlashRegistry) {
 angular.module("w11k.flash").constant("w11kFlashConfig", {
     templateUrl: "w11k-flash.tpl.html",
     swfObject: {
-        minFlashVersion: "10.2.0",
+        minFlashVersion: "14.0.0",
         width: 800,
-        height: 600,
-        flashvars: {},
-        params: {
-            quality: "high",
-            bgcolor: "#ffffff",
-            allowfullscreen: "false",
-            allowScriptAccess: "always",
-            wmode: "opaque"
-        },
-        attributes: {
-            align: "middle"
-        }
+        height: 600
     }
 });
 
 angular.module("w11k.flash").directive("w11kFlash", function(swfobject, $window, $q, w11kFlashConfig, $timeout, w11kFlashRegistry) {
+    var deepMerge = function(destination, source) {
+        for (var property in source) {
+            if (source[property] && source[property].constructor && source[property].constructor === Object) {
+                destination[property] = destination[property] || {};
+                deepMerge(destination[property], source[property]);
+            } else {
+                destination[property] = source[property];
+            }
+        }
+        return destination;
+    };
     return {
         restrict: "EA",
         templateUrl: w11kFlashConfig.templateUrl,
@@ -108,9 +108,13 @@ angular.module("w11k.flash").directive("w11kFlash", function(swfobject, $window,
             var includeFlash = function() {
                 var customConfig = scope.$eval(attrs.w11kFlash);
                 var flashId = w11kFlashRegistry.getFlashId();
-                var config = angular.extend({
-                    flashvars: {}
-                }, w11kFlashConfig.swfObject, customConfig);
+                var config = {
+                    flashvars: {},
+                    params: {},
+                    attributes: {}
+                };
+                deepMerge(config, w11kFlashConfig.swfObject);
+                deepMerge(config, customConfig);
                 config.flashvars.w11kFlashId = flashId;
                 flashContainer.append(flashElement);
                 flashElement.attr("id", flashId);

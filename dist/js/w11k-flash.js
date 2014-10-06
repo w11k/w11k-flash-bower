@@ -1,5 +1,5 @@
 /**
- * w11k-flash - v0.1.5 - 2014-07-15
+ * w11k-flash - v0.1.6 - 2014-10-07
  * https://github.com/w11k/w11k-flash
  *
  * Copyright (c) 2014 WeigleWilczek GmbH
@@ -52,7 +52,7 @@ angular.module("w11k.flash").run([ "$window", "w11kFlashRegistry", function($win
             if (angular.isDefined(flash)) {
                 var scope = flash.element.scope();
                 var result = scope.$eval(expression, locals);
-                scope.$apply(function() {});
+                scope.$digest();
                 return result;
             } else {
                 throw new Error("unknown flashId");
@@ -105,34 +105,39 @@ angular.module("w11k.flash").directive("w11kFlash", [ "swfobject", "$window", "$
                     element.css("width", "0");
                 }
             });
+            var flashId = w11kFlashRegistry.getFlashId();
+            var customConfig = scope.$eval(attrs.w11kFlash);
+            var config = {
+                flashvars: {},
+                params: {},
+                attributes: {}
+            };
+            deepMerge(config, w11kFlashConfig.swfObject);
+            deepMerge(config, customConfig);
+            config.flashvars.w11kFlashId = flashId;
+            var deferred = $q.defer();
+            w11kFlashRegistry.registerFlash(flashId, {
+                deferred: deferred,
+                element: element
+            });
+            scope.$on("$destroy", function() {
+                w11kFlashRegistry.unregisterFlash(flashId);
+            });
+            if (angular.isFunction(config.callback)) {
+                config.callback(deferred.promise);
+            }
             var includeFlash = function() {
-                var customConfig = scope.$eval(attrs.w11kFlash);
-                var flashId = w11kFlashRegistry.getFlashId();
-                var config = {
-                    flashvars: {},
-                    params: {},
-                    attributes: {}
-                };
-                deepMerge(config, w11kFlashConfig.swfObject);
-                deepMerge(config, customConfig);
-                config.flashvars.w11kFlashId = flashId;
                 flashContainer.append(flashElement);
                 flashElement.attr("id", flashId);
                 if (swfobject.hasFlashPlayerVersion(config.minFlashVersion)) {
                     flashElement.css("min-height", config.height);
                     flashElement.css("min-width", config.width);
                     var callback = function(event) {
-                        var deferred = $q.defer();
-                        w11kFlashRegistry.registerFlash(flashId, {
-                            deferred: deferred,
-                            object: event.ref,
-                            element: element
-                        });
-                        scope.$on("$destroy", function() {
-                            w11kFlashRegistry.unregisterFlash(flashId);
-                        });
-                        if (angular.isFunction(config.callback)) {
-                            config.callback(deferred.promise);
+                        var flash = w11kFlashRegistry.getFlash(flashId);
+                        if (event.success) {
+                            flash.object = event.ref;
+                        } else {
+                            flash.deferred.reject();
                         }
                     };
                     swfobject.embedSWF(config.swfUrl, flashId, "" + config.width, "" + config.height, config.minFlashVersion, false, config.flashvars, config.params, config.attributes, callback);

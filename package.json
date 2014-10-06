@@ -1,6 +1,6 @@
 {
   "name": "w11k-flash-bower",
-  "version": "0.1.5",
+  "version": "0.1.6",
 
   "description": "AngularJS module to integrate flash/flex applications",
   "keywords": [ "angular", "angularjs", "flash", "flex", "integration", "integrate", "migrate", "migration" ],

@@ -1,8 +1,8 @@
 /**
- * w11k-flash - v0.1.6 - 2014-10-07
+ * w11k-flash - v0.1.7 - 2015-04-03
  * https://github.com/w11k/w11k-flash
  *
- * Copyright (c) 2014 WeigleWilczek GmbH
+ * Copyright (c) 2015 WeigleWilczek GmbH
  */
 "use strict";
 
@@ -45,14 +45,14 @@ angular.module("w11k.flash").run([ "$window", "w11kFlashRegistry", function($win
     }
 } ]);
 
-angular.module("w11k.flash").run([ "$window", "w11kFlashRegistry", function($window, w11kFlashRegistry) {
+angular.module("w11k.flash").run([ "$window", "w11kFlashRegistry", "$rootScope", function($window, w11kFlashRegistry, $rootScope) {
     if (angular.isFunction($window.w11kFlashCall) === false) {
         $window.w11kFlashCall = function(flashId, expression, locals) {
             var flash = w11kFlashRegistry.getFlash(flashId);
             if (angular.isDefined(flash)) {
-                var scope = flash.element.scope();
+                var scope = flash.scope;
                 var result = scope.$eval(expression, locals);
-                scope.$digest();
+                $rootScope.$digest();
                 return result;
             } else {
                 throw new Error("unknown flashId");
@@ -118,7 +118,8 @@ angular.module("w11k.flash").directive("w11kFlash", [ "swfobject", "$window", "$
             var deferred = $q.defer();
             w11kFlashRegistry.registerFlash(flashId, {
                 deferred: deferred,
-                element: element
+                element: element,
+                scope: scope
             });
             scope.$on("$destroy", function() {
                 w11kFlashRegistry.unregisterFlash(flashId);

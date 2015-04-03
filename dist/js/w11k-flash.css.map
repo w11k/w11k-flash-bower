@@ -1,0 +1,7 @@
+{
+"version": 3,
+"mappings": "AAAA,qBAAsB;EACpB,QAAQ,EAAE,QAAQ;EAClB,QAAQ,EAAE,MAAM;;;AAGlB,4BAA6B;EAC3B,UAAU,EAAE,kBAAkB",
+"sources": ["../../src/js/w11k-flash.scss"],
+"names": [],
+"file": "w11k-flash.css"
+}

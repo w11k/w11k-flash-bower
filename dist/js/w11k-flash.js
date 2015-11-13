@@ -1,5 +1,5 @@
 /**
- * w11k-flash - v0.2.0 - 2015-04-03
+ * w11k-flash - v0.2.0 - 2015-11-13
  * https://github.com/w11k/w11k-flash
  *
  * Copyright (c) 2015 WeigleWilczek GmbH
